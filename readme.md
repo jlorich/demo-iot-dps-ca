@@ -141,7 +141,7 @@ We can combine the Key and Certificate to a PFX archive as follows:
 openssl pkcs12 -export -out device.pfx -inkey device.key -in device.cer
 ```
 
-## Create an enrollment group
+## 10. Create an enrollment group
 
 Add a new enrollment group.
 ![Cert verified](./images/add-group-enrollment.png)
@@ -150,5 +150,5 @@ Add a new enrollment group.
 Select the CA certificate
 ![Cert verified](./images/add-group-enrollment-2.png)
 
-## Run the Sample application
+## 11. Run the Sample application to register your device
 Edit program.cs in `src/dpsx509ca` to include your DPS ID Scope, then call `dotnet run` to provision the sample application as a device against your Enrollment Group with a Device ID of the Common Name (CN) in the certificate.
