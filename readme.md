@@ -75,7 +75,7 @@ From the Azure Portal, choose certificates inside the Device Provisioning Servic
 
 ![Add Certificate](./images/add-ca-cert.png)
 
-Pick a name for your certificate (this can be any name and does not refer to the certificate CN) and select the .pem file that was generated in ./demoCA/newcerts/
+Pick a name for your certificate (this can be any name and does not refer to the certificate CN) and select the `server.CA-signed.cer` file that was generated.
 
 ![Upload CA Cert](./images/add-ca-cert-2.png)
 
