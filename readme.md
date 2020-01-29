@@ -1,10 +1,12 @@
 # Setting up IoT Hub Device Provisioning Service with a CA Certificate
 
-Assumes Ubuntu and an already created IoT hub with DPS linked.
+This readme walks you through creating a Certificate Authority, generating device x509 certificates, and registring devices with IoT Hub using Azure IoT Device Provisioning Service (DPS) group enrollment.
+
+All commands specified were tested on Ubuntu 18.04 running in WSL2.  This readme assumes an instance of IoT Hub has already been created and linked with DPS.
 
 ## 1. Generate our CA Private Key
 
-Though in the real world we want to rely on an actual Certificate Authority to sign our certificates, for purposes of this demo we'll generate our own CA private key and act as the CA.
+Though in the real world we may want to rely on an actual Certificate Authority to sign our certificates, for purposes of this demo we'll generate our own CA private key and act as the CA ourselves.
 
 Generate an RSA private key for our CA as follows:
 
