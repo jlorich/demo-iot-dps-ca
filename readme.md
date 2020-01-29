@@ -10,13 +10,24 @@ Though in the real world we may want to rely on an actual Certificate Authority 
 
 Generate an RSA private key for your CA as follows:
 
-`openssl genrsa -des3 -out server.CA.key 2048`
+```bash
+openssl genrsa \
+    -des3 \
+    -out server.CA.key 2048;
+```
 
 ## 3. Generate your CA Certificate Signing Request (CSR)
 
 The next step is to provide a Certificate Signing Request to the CA.  This request contains all the desired information we want to be on the certificate including company, country, common name, etc.  Here we'll also include CA key so OpenSSL can add the public key as part of the certificate request.  We're creating a CA here, so we'll be self-signing.
 
-`openssl req -verbose -new -key server.CA.key -out server.CA.csr -sha256`
+```bash
+openssl req \
+    -verbose \
+    -new \
+    -key server.CA.key \
+    -out server.CA.csr \
+    -sha256;
+```
 
 I've chosen the following data for my CSR:
 
@@ -34,7 +45,7 @@ Email Address []:
 
 There are a few files expected by openSSL to exist so it can track what certificates have been issued as well as a serial number for each.  To prep this directory to be a demo CA run the following commands:
 
-```
+```bash
 mkdir -p ./demoCA/newcerts;
 touch ./demoCA/index.txt;
 touch ./demoCA/index.txt.attr;
@@ -45,7 +56,17 @@ echo 1000 > ./demoCA/serial;
 
 We'll now sign the Certificate Signing Request, generating the final self-signed CA certificate.
 
-`openssl ca -extensions v3_ca -out server.CA-signed.cer -keyfile server.CA.key -verbose -selfsign -md sha256 -enddate 330630235959Z -infiles server.CA.csr`
+```bash
+openssl ca \
+    -extensions v3_ca \
+    -out server.CA-signed.cer \
+    -keyfile server.CA.key \
+    -verbose \
+    -selfsign \
+    -md sha256 \
+    -enddate 330630235959Z \
+    -infiles server.CA.csr;
+```
 
 
 ## 5. Upload the CA certificate to DPS
@@ -69,11 +90,19 @@ To get this code, click "generate verification code" in the portal
 
 Now, generate a verification key:
 
-`openssl genrsa -out verification.key 2048`
+```bash
+openssl genrsa \
+    -out verification.key 2048;
+```
 
 Next, generate a new verification CSR.  Ensure the Common Name (CN) is the verification code provided in the Azure portal.
 
-`openssl req -new -key verification.key -out verification.csr`
+```bash
+openssl req \
+    -new \
+    -key verification.key \
+    -out verification.csr;
+```
 
 ```
 Country Name (2 letter code) [AU]:US
@@ -87,7 +116,17 @@ Email Address []:
 
 Now sign the CSR to create our proof-of-posession certificate:
 
-`openssl x509 -req -in verification.csr -CA server.CA-signed.cer -CAkey server.CA.key -CAcreateserial -out verification.pem -days 1024 -sha256`
+```bash
+openssl x509 \
+    -req \
+    -in verification.csr \
+    -CA server.CA-signed.cer \
+    -CAkey server.CA.key \
+    -CAcreateserial \
+    -out verification.pem \
+    -days 1024 \
+    -sha256;
+```
 
 Upload verification.pem to the Azure Portal.
 
@@ -99,7 +138,7 @@ Confirm the certificate shows as verified.
 
 ## 7. Create a CSR for your Device
 
-```
+```bash
 openssl req \
     -newkey rsa:2048 \
     -nodes \
@@ -121,7 +160,7 @@ Email Address []:
 
 ## 8. Sign the Device Certificate
 
-```
+```bash
 openssl x509 \
     -req \
     -sha256 \
@@ -137,8 +176,12 @@ The Device SDK needs both the Signed Certificate as well as the private key info
 
 We can combine the Key and Certificate to a PFX archive as follows:
 
-```
-openssl pkcs12 -export -out device.pfx -inkey device.key -in device.cer
+```bash
+openssl pkcs12 \
+    -export \
+    -out device.pfx \
+    -inkey device.key \
+    -in device.cer;
 ```
 
 ## 10. Create an enrollment group
