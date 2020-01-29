@@ -4,17 +4,17 @@ This readme walks you through creating a Certificate Authority, generating devic
 
 All commands specified were tested on Ubuntu 18.04 running in WSL2.  This readme assumes an instance of IoT Hub has already been created and linked with DPS.
 
-## 1. Generate our CA Private Key
+## 1. Generate your CA Private Key
 
-Though in the real world we may want to rely on an actual Certificate Authority to sign our certificates, for purposes of this demo we'll generate our own CA private key and act as the CA ourselves.
+Though in the real world we may want to rely on an actual Certificate Authority to sign your certificates, for purposes of this demo we'll generate a CA private key and act as the CA.
 
-Generate an RSA private key for our CA as follows:
+Generate an RSA private key for your CA as follows:
 
 `openssl genrsa -des3 -out server.CA.key 2048`
 
-## 3. Generate our CA Certificate Signing Request (CSR)
+## 3. Generate your CA Certificate Signing Request (CSR)
 
-The next step is to provide a Certificate Signing Request to the CA.  This request contains all the desired information we want to be on our certificate including company, country, common name, etc.  Here we'll also our own key so OpenSSL can include the public key as part of the certificate request.  We're creating a CA here so we'll be self-signing.
+The next step is to provide a Certificate Signing Request to the CA.  This request contains all the desired information we want to be on the certificate including company, country, common name, etc.  Here we'll also include CA key so OpenSSL can add the public key as part of the certificate request.  We're creating a CA here, so we'll be self-signing.
 
 `openssl req -verbose -new -key server.CA.key -out server.CA.csr -sha256`
 
@@ -31,6 +31,7 @@ Email Address []:
 ```
 
 ## 4. Prep your demo CA folder
+
 There are a few files expected by openSSL to exist so it can track what certificates have been issued as well as a serial number for each.  To prep this directory to be a demo CA run the following commands:
 
 ```
@@ -42,14 +43,14 @@ echo 1000 > ./demoCA/serial;
 
 ## 4. Sign the CSR
 
-We'll now sign our own Certificate Signing Request, generating our final self-signed CA certificate.
+We'll now sign the Certificate Signing Request, generating the final self-signed CA certificate.
 
 `openssl ca -extensions v3_ca -out server.CA-signed.cer -keyfile server.CA.key -verbose -selfsign -md sha256 -enddate 330630235959Z -infiles server.CA.csr`
 
 
 ## 5. Upload the CA certificate to DPS
 
-From the Azure Portal, choose certificates inside your Device provisioning Service then click Add:
+From the Azure Portal, choose certificates inside the Device Provisioning Service blade then click Add:
 
 ![Add Certificate](./images/add-ca-cert.png)
 
@@ -57,20 +58,20 @@ Pick a name for your certificate (this can be any name and does not refer to the
 
 ![Upload CA Cert](./images/add-ca-cert-2.png)
 
-6. Verify the CA Certificate
 
-DPS requires that you verify ownership of teh 
+## 6. Verify CA Certificate Ownership
 
+Before you can provision devices, DPS requires that you prove you have the ability to sign a certficiate.  DPS will provide a randomly generated code that you must use as the Common Name (CN) in an x509 certificate.
 
-Click generate verification code in the portal
+To get this code, click "generate verification code" in the portal
 
 ![Generate verification code](./images/verify-certificate.png)
 
-Generate a verification certificate keypair:
+Now, generate a verification key:
 
 `openssl genrsa -out verification.key 2048`
 
-Generate a new verification CSR.  Ensure the Common Name (CN) is the verification code provided in the Azure portal.
+Next, generate a new verification CSR.  Ensure the Common Name (CN) is the verification code provided in the Azure portal.
 
 `openssl req -new -key verification.key -out verification.csr`
 
@@ -84,7 +85,7 @@ Common Name (e.g. server FQDN or YOUR name) []:6FDE7E17699E89D0F41DBCAE062A496A0
 Email Address []:
 ```
 
-Now create the proof of posession certificate:
+Now sign the CSR to create our proof-of-posession certificate:
 
 `openssl x509 -req -in verification.csr -CA server.CA-signed.cer -CAkey server.CA.key -CAcreateserial -out verification.pem -days 1024 -sha256`
 
